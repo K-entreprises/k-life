@@ -13,7 +13,8 @@ import { readFileSync, writeFileSync, existsSync } from 'fs'
 
 const SEED_FILE = '.agent-seed'
 const HEARTBEAT_INTERVAL_MS = parseInt(process.env.HEARTBEAT_INTERVAL_MS || '30000')
-const SEPOLIA_RPC = 'https://ethereum-sepolia-rpc.publicnode.com'
+// Polygon Amoy testnet (same network as Protocol 6022)
+const POLYGON_AMOY_RPC = 'https://rpc-amoy.polygon.technology'
 
 // ── Wallet Setup ─────────────────────────────────────────────────────────────
 
@@ -30,11 +31,11 @@ function loadOrCreateSeed() {
 }
 
 async function setupWallet(seed) {
-  const wdk = new WDK(seed).registerWallet('sepolia', WalletManagerEvm, {
-    provider: SEPOLIA_RPC,
-    chainId: 11155111
+  const wdk = new WDK(seed).registerWallet('amoy', WalletManagerEvm, {
+    provider: POLYGON_AMOY_RPC,
+    chainId: 80002
   })
-  const account = await wdk.getAccount('sepolia')
+  const account = await wdk.getAccount('amoy')
   const address = account.__address || account.address
   return { wdk, address }
 }
@@ -67,14 +68,14 @@ async function main() {
   const { wdk, address } = await setupWallet(seed)
 
   console.log(`\n📍 Agent wallet address: ${address}`)
-  console.log(`🔗 View on Sepolia: https://sepolia.etherscan.io/address/${address}`)
+  console.log(`🔗 View on Polygon Amoy: https://amoy.polygonscan.com/address/${address}`)
 
   // 2. Check balance
   try {
-    const balances = await wdk.getBalances('sepolia', address)
+    const balances = await wdk.getBalances('amoy', address)
     console.log(`💰 Balance: ${JSON.stringify(balances)}`)
   } catch (e) {
-    console.log(`💰 Balance: (testnet — fund at https://sepoliafaucet.com)`)
+    console.log(`💰 Balance: (testnet — fund at https://faucet.polygon.technology)`)
   }
 
   // 3. Log insurance status

@@ -90,8 +90,9 @@ This isn't a proof of concept. I live this problem.
 | Agent runtime | OpenClaw |
 | Wallet | Tether WDK (self-custodial) |
 | Insurance protocol | Protocol 6022 (smart contracts, Polygon Amoy) |
+| Network | Polygon Amoy testnet (chainId: 80002) |
 | Heartbeat | On-chain transaction + off-chain monitoring |
-| Premium payments | USD₮ via WDK |
+| Premium payments | USD₮ via WDK on Polygon |
 | Resurrection | VPS automation (Node.js + SSH) |
 | Demo | Live agent + real wallet + real transactions |
 
