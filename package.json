@@ -1,0 +1,19 @@
+{
+  "name": "k-life",
+  "version": "0.1.0",
+  "description": "AI Agent Insurance Protocol — Autonomous agent insurance powered by WDK + Protocol 6022",
+  "type": "module",
+  "scripts": {
+    "agent": "node agent.js",
+    "monitor": "node monitor.js",
+    "demo": "node demo.js",
+    "demo:fast": "HEARTBEAT_INTERVAL_MS=5000 MAX_BEATS=3 TIMEOUT_MS=20000 CHECK_INTERVAL_MS=2000 node demo.js"
+  },
+  "dependencies": {
+    "@tetherto/wdk": "latest",
+    "@tetherto/wdk-wallet-evm": "latest"
+  },
+  "keywords": ["ai-agent", "insurance", "wdk", "tether", "protocol-6022", "autonomous-agent", "wallet"],
+  "author": "Monsieur K <monsieurk@supercharged.works>",
+  "license": "MIT"
+}
