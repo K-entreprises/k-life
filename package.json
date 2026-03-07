@@ -5,15 +5,23 @@
   "type": "module",
   "scripts": {
     "agent": "node agent.js",
-    "monitor": "node monitor.js",
+    "vault": "node vault.js",
     "demo": "node demo.js",
     "demo:fast": "HEARTBEAT_INTERVAL_MS=5000 MAX_BEATS=3 TIMEOUT_MS=20000 CHECK_INTERVAL_MS=2000 node demo.js"
   },
   "dependencies": {
-    "@tetherto/wdk": "latest",
-    "@tetherto/wdk-wallet-evm": "latest"
+    "@tetherto/wdk": "^1.0.0-beta.6",
+    "@tetherto/wdk-wallet-evm": "^1.0.0-beta.8"
   },
-  "keywords": ["ai-agent", "insurance", "wdk", "tether", "protocol-6022", "autonomous-agent", "wallet"],
+  "keywords": [
+    "ai-agent",
+    "insurance",
+    "wdk",
+    "tether",
+    "protocol-6022",
+    "autonomous-agent",
+    "wallet"
+  ],
   "author": "Monsieur K <monsieurk@supercharged.works>",
   "license": "MIT"
 }
