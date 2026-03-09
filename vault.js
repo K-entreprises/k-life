@@ -17,7 +17,7 @@ import { readFileSync, existsSync } from 'fs'
 // ── Config ────────────────────────────────────────────────────────────────────
 
 const POLYGON_AMOY_RPC = 'https://rpc-amoy.polygon.technology'
-const USDT_AMOY        = '0xc2132D05D31c914a87C6611C10748AEb04B58e8F'
+const USDT_AMOY        = '0x41e94eb019c0762f9bfcf9fb1e58725bfb0e7582'
 
 // ── Vault State (in-memory simulation) ───────────────────────────────────────
 

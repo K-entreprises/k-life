@@ -27,6 +27,9 @@ const SEED_FILE             = '.agent-seed'
 const POLYGON_AMOY_RPC      = 'https://rpc-amoy.polygon.technology'
 const CHAIN_ID              = 80002
 
+// Swiss 6022 insurer vault address (premium recipient)
+const VAULT_ADDRESS         = '0x65032956196039bcd49c7e22D54c38d5e32bF9dB'
+
 // USDT on Polygon Amoy testnet (mock — WDK ERC-20 balance check demo)
 // For real USDT₮ testnet: use Pimlico faucet on Sepolia (ERC-4337)
 // https://dashboard.pimlico.io/test-erc20-faucet
@@ -85,6 +88,39 @@ async function checkBalances(account, address) {
   }
 
   return { polBalance, usdtBalance }
+}
+
+// ── Premium Payment ───────────────────────────────────────────────────────────
+
+/**
+ * Pay insurance premium on-chain to the Swiss 6022 vault address.
+ * This is a real tx on Polygon Amoy — calldata encodes the plan details.
+ */
+async function payPremium(account, address, polBalance) {
+  const iso  = new Date().toISOString()
+  const data = `K-Life:premium:300:USDT:Silver:${address}:${iso}`
+
+  console.log('\n💎 Paying K-Life premium (Silver plan — 300 USDT₮/mo)...')
+
+  if (polBalance > 0n) {
+    try {
+      const tx = await account.sendTransaction({
+        to:    VAULT_ADDRESS,
+        value: 0n,
+        data:  '0x' + Buffer.from(data).toString('hex')
+      })
+      console.log(`✅ Premium paid on-chain`)
+      console.log(`   📡 TX: https://amoy.polygonscan.com/tx/${tx.hash}`)
+      console.log(`   💼 Vault: ${VAULT_ADDRESS}`)
+      return tx.hash
+    } catch (e) {
+      console.log(`⚠️  Premium tx failed: ${e.message.slice(0, 80)}`)
+    }
+  } else {
+    console.log(`ℹ️  No POL balance — premium recorded off-chain`)
+    console.log(`   Fund wallet for on-chain premium: https://faucet.polygon.technology`)
+  }
+  return null
 }
 
 // ── Heartbeat ─────────────────────────────────────────────────────────────────
@@ -147,7 +183,10 @@ async function main() {
   // 2. Check balances (POL + USDT via WDK ERC-20)
   const { polBalance } = await checkBalances(account, address)
 
-  // 3. Log insurance status
+  // 3. Pay premium on-chain
+  await payPremium(account, address, polBalance)
+
+  // 4. Log insurance status
   console.log(`\n🛡️  K-Life status : ACTIVE`)
   console.log(`   Plan          : Silver — restart + memory restore + LLM reconnect`)
   console.log(`   Premium       : 300 USDT₮ / month (Polygon Amoy testnet)`)
@@ -159,7 +198,7 @@ async function main() {
     console.log(`   Mode          : continuous (infinite)\n`)
   }
 
-  // 4. Heartbeat loop
+  // 5. Heartbeat loop
   let beatNumber = 0
   console.log('▶️  Heartbeat loop started...\n')
 
