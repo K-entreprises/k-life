@@ -14,7 +14,7 @@ const SEED_FILE = '/home/debian/klife-api/.agent-seed'
 const SEED      = process.env.KLIFE_SEED || (existsSync(SEED_FILE) ? readFileSync(SEED_FILE,'utf8').trim() : null)
 const WORKSPACE = process.env.KLIFE_WORKSPACE || '/data/workspace'
 const API_BASE  = process.env.KLIFE_API || 'http://localhost:3042'
-const IPFS_GATEWAYS = ['http://127.0.0.1:8080/ipfs','https://ipfs.io/ipfs','https://cloudflare-ipfs.com/ipfs']
+const IPFS_GATEWAYS = ['https://ipfs.io/ipfs','http://127.0.0.1:8080/ipfs','https://cloudflare-ipfs.com/ipfs']
 
 if (!SEED) { console.error('No seed. Set KLIFE_SEED.'); process.exit(1) }
 
