@@ -7,7 +7,7 @@ K-Life — AI Agent Insurance Protocol
 🤖 Agent Wallets (WDK / OpenClaw and Agents Integration)
 
 ## One-liner
-Not insurance. Resurrection.
+> *Not insurance. Resurrection.*
 
 The first autonomous resurrection protocol for AI agents — powered by WDK, OpenClaw, and Protocol 6022.on Polygon Amoy.
 

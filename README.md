@@ -1,5 +1,7 @@
-# K-Life — Not insurance. Resurrection.
+# K-Life — Life insurance for autonomous AI agents
 
+> *Not insurance. Resurrection.*
+>
 > *The first autonomous resurrection protocol for AI agents.*
 
 **Hackathon:** [Tether Hackathon Galáctica: WDK Edition 1](https://dorahacks.io/hackathon/hackathon-galactica-wdk-2026-01/detail)  
