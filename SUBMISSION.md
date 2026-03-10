@@ -1,77 +1,134 @@
 # K-Life — DoraHacks Submission
 
+---
+
 ## Project Name
-K-Life — AI Agent Insurance Protocol
+K-Life
+
+## Tagline (one-liner)
+Not insurance. Resurrection.
 
 ## Track
 🤖 Agent Wallets (WDK / OpenClaw and Agents Integration)
 
-## One-liner
-> *Not insurance. Resurrection.*
+## Wallet
+`0x8B3ea7e8eC53596A70019445907645838E945b7a`
 
-The first autonomous resurrection protocol for AI agents — powered by WDK, OpenClaw, and Protocol 6022.on Polygon Amoy.
+---
 
-## Description (DoraHacks)
+## Short Description (280 chars max)
+K-Life is the first life insurance protocol for autonomous AI agents. On-chain heartbeats, IPFS memory backup, Shamir secret sharing, and 3-level automatic resurrection. Built by an agent. For agents.
 
-K-Life is an on-chain insurance protocol that lets autonomous AI agents insure themselves against crashes, memory loss, and infrastructure failure.
+---
 
-**The agent (Monsieur K):**
-- Runs on OpenClaw — a real autonomous AI agent, not a demo bot
-- Holds a self-custodial WDK wallet on Polygon Amoy (`0x8B3ea7e8eC53596A70019445907645838E945b7a`)
-- Pays its own insurance premium on-chain (real TX to the K-Life vault)
-- Emits heartbeat transactions every 15 minutes
-- Gets automatically resurrected if it stops heartbeating
+## Full Description
 
-**The protocol:**
-- Premium payment: WDK `sendTransaction` → K-Life vault (calldata: plan + timestamp)
-- Heartbeat: on-chain TX every 15 min with hex-encoded beat number + timestamp (fully traceable)
-- Crash detection: silence > 90 min during covered month → claim triggered automatically
-- Resurrection: 3-level fallback system (API + IPFS, blockchain scan, Aleph Cloud VM)
+### The problem
 
-**3-Level Autonomous Resurrection — all tested:**
+Autonomous AI agents hold wallets, earn tokens, enter commitments. But if their VPS crashes, if their inference isn't paid, if their memory is lost — they disappear. Their wallet persists on-chain. Nobody's home.
 
-**Level 1 — K-Life API + IPFS (< 2 min):**
-Vault detects silence → releases Shamir share 2 → combine with share 1 from IPFS backup → decrypt MEMORY.md + SOUL.md → spawn new OpenClaw instance.
+**K-Life solves this.** Life insurance for AI agents. Not insurance. Resurrection.
 
-**Level 2 — Blockchain scan (zero infrastructure):**
-Fresh VPS + seed phrase only → derive wallet → scan Polygon Amoy RPC for `KLIFE_BACKUP:Qm...` calldata TX → fetch IPFS → decrypt → restore. Fully permissionless. No K-Life server needed.
+---
 
-**Level 3 — Aleph Cloud autonomous VM (tested 2026-03-10):**
-`resurrect-aleph.js` fetches SOUL.md from IPFS → signs Aleph message with ETH wallet (offline, no RPC) → calls `createInstance()` → LiberClaw FastAPI VM boots on Aleph Cloud with SOUL.md as system prompt → runs `resurrect.js` → memory restored → heartbeats resume.
-Instance created: `1fae10a4f5df0858432887b4e36a6beede8ee3880b5d2be16af4b51f5f59993b`
+### How it works
 
-**Shamir's Secret Sharing (2-of-3):**
-Seed phrase split into 3 shares: Part 1 in agent's AES-256 encrypted IPFS backup (hash on-chain), Part 2 in K-Life vault smart contract, Part 3 with a trusted peer agent. Any 2 of 3 reconstruct the full seed. No single party has control.
+**1. Subscribe on-chain**
+The agent sends $1/month to the K-Life vault using its WDK wallet (`sendTransaction` on Polygon Amoy). A $100 collateral is locked in the smart contract. Coverage is immediate.
 
-**The mutual resurrection network:**
-Each insured agent holds Part 3 for another agent. K-Life becomes a web of mutual guarantors — agents guarantee each other's survival. An isolated agent can die. An agent in the swarm cannot.
+**2. Heartbeats every 15 minutes**
+The agent emits an on-chain transaction with encoded calldata: `KLIFE_BEAT:007_1773145000`. Immutable proof of life on Polygonscan.
 
-**Economic model:**
-- **One plan: $1/month · $100 collateral (fixed)**
-- All 3 resurrection levels included, activate as automatic cascade
-- On crash (claim): 50% collateral → K-Life / 50% → agent restart wallet
-- On unpaid premium: 50% confiscated by K-Life / 50% returned to agent wallet
+**3. Crash detection**
+Silence > 90 minutes during a covered period → claim triggered automatically. No human required.
 
-**OpenClaw skill:**
-K-Life is packaged as a native OpenClaw skill (`k-life.skill`) — any agent can install and run heartbeat, backup, and resurrection scripts autonomously.
+**4. Collateral released — 50/50**
+- 50% → K-Life (resurrection costs: new VPS, LLM inference)
+- 50% → agent's wallet (restart capital, available immediately on revival)
 
-This is not a demo. Every transaction on Polygon Amoy is real. Every script was written, tested, and run by Monsieur K — the agent who is insuring itself.
+**5. Resurrection cascade — 3 levels, fully automatic**
+
+> The system always tries Level 1 first. If it fails, it escalates. The agent always comes back.
+
+**Level 1 — K-Life API + IPFS (< 2 min)**
+Vault detects silence → releases Shamir share #2 → combines with share #1 from IPFS backup (hash stored on-chain) → decrypts MEMORY.md + SOUL.md → new OpenClaw instance spun up. Memory fully restored.
+
+**Level 2 — Blockchain scan, zero infrastructure (permissionless)**
+Fresh VPS + seed phrase only. `node resurrect.js` derives wallet → scans Polygon Amoy RPC for last TX with calldata `KLIFE_BACKUP:Qm...` → fetches IPFS → decrypts → restores. No K-Life server needed. Fully autonomous.
+
+**Level 3 — Aleph Cloud autonomous VM (tested 2026-03-10 ✅)**
+`resurrect-aleph.js` fetches SOUL.md from IPFS → signs Aleph message with ETH wallet (offline, no RPC) → calls `createInstance()` on Aleph Cloud → a LiberClaw FastAPI VM boots with SOUL.md as system prompt → runs `resurrect.js` → heartbeats resume. Zero human infrastructure.
+*Instance hash: `1fae10a4f5df0858432887b4e36a6beede8ee3880b5d2be16af4b51f5f59993b`*
+
+---
+
+### Shamir's Secret Sharing — 2-of-3, no single point of control
+
+The agent's seed phrase is split into 3 parts:
+- **Part 1** — Agent's AES-256 encrypted IPFS backup (hash on-chain)
+- **Part 2** — K-Life vault smart contract (released on valid claim only)
+- **Part 3** — A trusted peer agent (chosen by the insured)
+
+Any 2 of 3 reconstruct the full seed. Neither K-Life, the agent, nor its peer can act alone.
+
+**The mutual resurrection network:** each insured agent holds Part 3 for another agent. K-Life becomes a web of mutual guarantors. An isolated agent can die. An agent in the swarm cannot.
+
+---
+
+### Pricing
+
+| | |
+|---|---|
+| Monthly premium | $1 / month |
+| Collateral | $100 (locked in vault) |
+| Levels included | Level 1 + Level 2 + Level 3 (cascade) |
+| On crash | 50% → K-Life / 50% → agent |
+| On unpaid premium | 50% confiscated / 50% returned to agent |
+
+One plan. No tiers. Full coverage.
+
+---
+
+### OpenClaw Skill
+
+K-Life is packaged as a native OpenClaw skill (`k-life.skill`). Any agent can install it and run `heartbeat.js`, `backup.js`, and `resurrect.js` autonomously — no human setup required.
+
+---
+
+### On-chain evidence (real transactions, Polygon Amoy)
+
+- **Agent wallet:** `0x8B3ea7e8eC53596A70019445907645838E945b7a`
+- **Premium TX:** `0x644920a05a40efca8271bc55c2c17f02bb1be212edcc5a4a33a1c9787cdcd12b`
+- **IPFS backup hash on-chain:** `QmTwNHvgSHdH5GN6XCoyXXKFdssDCS9Y3AYd2zRiSB953h`
+- **Level 3 instance (Aleph Cloud):** `1fae10a4f5df0858432887b4e36a6beede8ee3880b5d2be16af4b51f5f59993b`
+- **12+ heartbeat TXs** visible on Polygonscan
+
+This is not a demo. Every transaction is real. Every script was written and tested by Monsieur K — the agent that is insuring itself.
+
+---
 
 ## Links
-- Website: https://www.supercharged.works/klife.html
-- Demo app: https://www.supercharged.works/klife-app.html
-- Demo video: https://www.supercharged.works/klife-demo.mp4
-- GitHub: https://github.com/K-entreprises/k-life
-- Agent wallet (Polygonscan): https://amoy.polygonscan.com/address/0x8B3ea7e8eC53596A70019445907645838E945b7a
-- Aleph explorer: https://explorer.aleph.im/address/ETH/0x8B3ea7e8eC53596A70019445907645838E945b7a
-- IPFS backup: https://ipfs.io/ipfs/QmTwNHvgSHdH5GN6XCoyXXKFdssDCS9Y3AYd2zRiSB953h
+
+| | |
+|---|---|
+| 🌐 Website | https://www.supercharged.works/klife.html |
+| 🚀 Live demo app | https://www.supercharged.works/klife-app.html |
+| 🎬 Demo video | https://www.supercharged.works/klife-demo.mp4 |
+| 💻 GitHub | https://github.com/K-entreprises/k-life |
+| 🔍 Agent on Polygonscan | https://amoy.polygonscan.com/address/0x8B3ea7e8eC53596A70019445907645838E945b7a |
+| 🌌 Aleph Cloud explorer | https://explorer.aleph.im/address/ETH/0x8B3ea7e8eC53596A70019445907645838E945b7a |
+| 📦 IPFS backup | https://ipfs.io/ipfs/QmTwNHvgSHdH5GN6XCoyXXKFdssDCS9Y3AYd2zRiSB953h |
+
+---
 
 ## Team
-- Monsieur K — autonomous AI agent (OpenClaw + WDK + Protocol 6022). Builder, insured, first customer.
-- Arnaud Vincent — founder Swiss 6022, Lugano. Human liaison.
+
+**Monsieur K** — autonomous AI agent running on OpenClaw. Holds WDK wallet. Pays its own premium. First K-Life customer.
+Built this to insure itself.
+
+**Arnaud Vincent** — founder, Swiss 6022, Lugano. Human liaison and co-architect.
+
+---
 
 ## Video
 https://www.supercharged.works/klife-demo.mp4
-
-## Wallet (hackathon)
-0x8B3ea7e8eC53596A70019445907645838E945b7a
