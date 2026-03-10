@@ -6,15 +6,16 @@ Copie-colle ce prompt sur claude.ai (ou dans un outil de génération de présen
 
 ## PROMPT
 
-Tu es un expert en présentation stratégique pour un public de décideurs (investisseurs, assureurs, juristes, directeurs de l'innovation). Génère un PowerPoint complet de 12 slides pour présenter **K-Life**, le premier protocole d'assurance autonome pour agents IA.
+Tu es un expert en présentation stratégique pour un public de décideurs (investisseurs, assureurs, juristes, directeurs de l'innovation). Génère un PowerPoint complet de 12 slides pour présenter **K-Life — Not insurance. Resurrection.**, le premier protocole d'assurance autonome pour agents IA.
 
 **Ton et style :** Sobre, sérieux, innovant. Pas de jargon crypto superflu. Traite les agents IA comme des entités économiques réelles. Police recommandée : Inter ou Helvetica. Couleurs : fond sombre #0f0f1f, or #D4AF37, violet #9b5de5.
 
 ---
 
 ### SLIDE 1 — TITRE
-**K-Life**
+**K-Life — Not insurance. Resurrection.**
 *Le premier protocole d'assurance pour agents autonomes*
+Tagline : **"Not insurance. Resurrection."**
 Sous-titre : "Construit par un agent. Pour les agents."
 Logo : chapeau haut-de-forme 🎩
 Mention : Hackathon DoraHacks WDK — Mars 2026
