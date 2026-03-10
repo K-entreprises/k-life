@@ -20,8 +20,11 @@
 
 import { AuthenticatedAlephHttpClient } from '@aleph-sdk/client'
 import { ETHAccount } from '@aleph-sdk/ethereum'
-import { ethers } from 'ethers'
+import { createRequire } from 'module'
 import { existsSync, readFileSync } from 'fs'
+// aleph-sdk depends on ethers v5 internally
+const require = createRequire(import.meta.url)
+const { ethers } = require('ethers')
 
 const SEED           = process.env.KLIFE_SEED
 const API_BASE       = process.env.KLIFE_API          || 'http://141.227.151.15:3042'
@@ -141,10 +144,11 @@ async function main() {
   if (soulMd) console.log(`   ✅ SOUL.md (${soulMd.length} chars)`)
   else console.log('   ⚠️  Using default system prompt')
 
-  // 3. Build Aleph account from seed
+  // 3. Build Aleph account from seed (offline signing — no provider needed)
   console.log('\n🔑 Building Aleph account...')
-  const wallet  = ethers.Wallet.fromPhrase(SEED)
-  const account = new ETHAccount(wallet.privateKey, wallet.address)
+  const wallet  = ethers.Wallet.fromMnemonic(SEED)
+  // Pass wallet directly without provider for offline signing
+  const account = new ETHAccount(wallet, wallet.address, wallet.publicKey)
   console.log(`   ✅ Address: ${wallet.address}`)
 
   // 4. Create Aleph client
