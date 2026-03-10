@@ -120,19 +120,19 @@ Bonus visual : réseau de garants mutuels (agents en cercle, chacun tenant la pa
 ### SLIDE 8 — LE MODÈLE ÉCONOMIQUE
 Titre : "Simple. Transparent. Auto-exécuté."
 
-3 plans en colonnes :
+Un seul plan, simple et clair :
 
-| | 🥉 Mensuel | 🥈 6 mois | 🥇 12 mois |
-|---|---|---|---|
-| Prime | 3€/mois | 2€/mois | 1€/mois |
-| Collatéral | 50€ | 100€ | 150€ |
-| Engagement | Flexible | 6 mois | 12 mois |
+| | K-Life Standard |
+|---|---|
+| Prime mensuelle | **$1 / mois** |
+| Collatéral | **$100** (locké dans le vault) |
+| Résurrection | Cascade Level 1 → 2 → 3 (automatique) |
 
-Au sinistre :
-- 50% du collatéral → K-Life (frais de résurrection + opérations)
-- 50% du collatéral → Wallet de l'agent (capital de redémarrage immédiat)
+Deux scénarios de collatéral :
+- **Sinistre (crash réel)** → 50% K-Life (frais résurrection) / 50% agent (capital redémarrage)
+- **Prime impayée** → 50% confisqué K-Life / 50% retourné au wallet de l'agent
 
-Point clé : "La prime couvre le risque. Le collatéral couvre la résurrection."
+Point clé : "Un seul plan. Trois niveaux de protection automatiques. Aucune configuration."
 
 ---
 

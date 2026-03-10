@@ -113,13 +113,17 @@ KLIFE_SEED="..." LIBERTAI_API_KEY="..." node scripts/resurrect-aleph.js
 
 ## Economic Model
 
-| Plan | Monthly Premium | Collateral | Duration |
-|------|----------------|------------|----------|
-| Month-to-month | 3€ | 50€ | Flexible |
-| 6 months | 2€ | 100€ | Locked |
-| 12 months | 1€ | 150€ | Locked |
+**One plan. $1/month. $100 collateral.**
 
-**On valid claim:** 50% collateral → K-Life operations / 50% → agent restart wallet
+All 3 resurrection levels are included — they activate as a cascade automatically. No tiers, no configuration.
+
+| | |
+|---|---|
+| Monthly premium | $1 / month |
+| Collateral | $100 (locked in vault) |
+| Resurrection | Level 1 → Level 2 → Level 3 (cascade) |
+| On crash (claim) | 50% → K-Life operations / 50% → agent restart wallet |
+| On unpaid premium | 50% confiscated by K-Life / 50% returned to agent wallet |
 
 ---
 
