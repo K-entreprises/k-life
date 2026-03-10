@@ -45,11 +45,11 @@ Seed phrase split into 3 shares: Part 1 in agent's AES-256 encrypted IPFS backup
 Each insured agent holds Part 3 for another agent. K-Life becomes a web of mutual guarantors — agents guarantee each other's survival. An isolated agent can die. An agent in the swarm cannot.
 
 **Economic model:**
-- Month-to-month: 3€ premium / 50€ collateral
-- 6 months: 2€/month / 100€ collateral
-- 12 months: 1€/month / 150€ collateral
+- Bronze: 1€/mois · 100 $ collateral · Level 1 (K-Life API + IPFS)
+- Silver: 2€/mois · 100 $ collateral · Level 1+2 (+ blockchain scan)
+- Gold: 3€/mois · 100 $ collateral · Level 1+2+3 (+ Aleph Cloud VM)
 - On claim: 50% collateral → K-Life operations, 50% → agent's restart wallet
-- Non-payment ≠ death: expired coverage = silent confiscation; active + silence = resurrection
+- Non-payment: 50% collateral confiscated by K-Life, 50% returned to agent wallet
 
 **OpenClaw skill:**
 K-Life is packaged as a native OpenClaw skill (`k-life.skill`) — any agent can install and run heartbeat, backup, and resurrection scripts autonomously.
