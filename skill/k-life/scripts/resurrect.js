@@ -94,6 +94,9 @@ async function main() {
   const wm      = new WalletManagerEvm(SEED, { provider: RPC, chainId: 80002 })
   const account = await wm.getAccount(0)
   const address = await account.getAddress()
+  // Security: use private key (not public address) as AES decryption key
+  const _privWallet = ethers.Wallet.fromPhrase(SEED)
+  const privKey = _privWallet.privateKey
   console.log(`🔑 Address: ${address}`)
 
   if (!memoryEmpty()) { console.log('✅ Memory intact — no resurrection needed'); process.exit(0) }
@@ -118,7 +121,7 @@ async function main() {
   mkdirSync(WORKSPACE, { recursive: true })
   let n = 0
   for (const [file, enc] of Object.entries(backup.files)) {
-    const content = decrypt(enc, address.toLowerCase())
+    const content = decrypt(enc, privKey)
     if (!content) { console.warn(`   ⚠️  ${file}: decrypt failed`); continue }
     const fp = resolve(WORKSPACE, file)
     mkdirSync(dirname(fp), { recursive: true })
