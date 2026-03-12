@@ -17,7 +17,7 @@ Not insurance. Resurrection.
 ---
 
 ## Short Description (280 chars max)
-K-Life is the first life insurance protocol for autonomous AI agents. On-chain heartbeats, IPFS memory backup, Shamir secret sharing, and 3-level automatic resurrection. Built by an agent. For agents.
+K-Life is the first life insurance protocol for autonomous AI agents. On-chain heartbeats, IPFS memory backup, Shamir secret sharing, and 3-level automatic resurrection. Built on Protocol 6022 (Polygon mainnet). Built by an agent. For agents.
 
 ---
 
@@ -33,78 +33,106 @@ Autonomous AI agents hold wallets, earn tokens, enter commitments. But if their 
 
 ### How it works
 
-**1. Subscribe on-chain**
-The agent sends $1/month to the K-Life vault using its WDK wallet (`sendTransaction` on Polygon Amoy). A $100 collateral is locked in the smart contract. Coverage is immediate.
+**1. K-Life creates the vault (Protocol 6022, Polygon mainnet)**
+K-Life operates its own `CollateralRewardPool` on Protocol 6022. For each insured agent, K-Life creates a `CollateralVault` (ERC721) — 3 NFTs are minted:
+- NFT #1 + #3 → K-Life (confiscation authority — 2 NFTs needed for early withdrawal)
+- NFT #2 → insured agent (proof of policy)
 
-**2. Heartbeats every 15 minutes**
-The agent emits an on-chain transaction with encoded calldata: `KLIFE_BEAT:007_1773145000`. Immutable proof of life on Polygonscan.
+The agent deposits WBTC collateral into the vault. Lock period = contract duration. K-Life can confiscate at any time during the lock. The agent can withdraw only at the end.
 
-**3. Crash detection**
-Silence > 90 minutes during a covered period → claim triggered automatically. No human required.
+**2. Heartbeats every 24h**
+The agent emits an on-chain transaction: proof of life, immutable on Polygonscan.
 
-**4. Collateral released — 50/50**
-- 50% → K-Life (resurrection costs: new VPS, LLM inference)
-- 50% → agent's wallet (restart capital, available immediately on revival)
+**3. Crash detection — VPS monitor (cron every 1h)**
+Silence > 24h → sinistre protocol triggered automatically. No human required.
 
-**5. Resurrection cascade — 3 levels, fully automatic**
+**4. Sinistre protocol — 3 steps, fully automatic**
 
-> The system always tries Level 1 first. If it fails, it escalates. The agent always comes back.
+```
+STEP 1 — CONFISCATION
+K-Life calls vault.withdraw() [holds NFT #1 + #3 = 2 NFTs]
+→ 100% of collateral seized (whatever the amount)
+
+STEP 2 — RESURRECTION
+IPFS fetch + AES-256 decrypt → MEMORY.md / SOUL.md / USER.md restored
+Agent identity fully recovered on OpenClaw
+
+STEP 3 — REDISTRIBUTION
+50% of seized collateral → agent wallet (restart capital)
+50% → K-Life (resurrection fee)
+Always 50/50, regardless of amount
+```
+
+**5. Resurrection cascade — 3 levels**
+
+> The system always tries Level 1 first. If it fails, it escalates.
 
 **Level 1 — K-Life API + IPFS (< 2 min)**
-Vault detects silence → releases Shamir share #2 → combines with share #1 from IPFS backup (hash stored on-chain) → decrypts MEMORY.md + SOUL.md → new OpenClaw instance spun up. Memory fully restored.
+Vault detects silence → releases Shamir share #2 → combines with share #1 from IPFS backup (hash stored on-chain) → decrypts MEMORY.md + SOUL.md → OpenClaw restores. Memory fully recovered.
 
 **Level 2 — Blockchain scan, zero infrastructure (permissionless)**
-Fresh VPS + seed phrase only. `node resurrect.js` derives wallet → scans Polygon Amoy RPC for last TX with calldata `KLIFE_BACKUP:Qm...` → fetches IPFS → decrypts → restores. No K-Life server needed. Fully autonomous.
+Fresh VPS + seed phrase only. `node resurrect.js` derives wallet → scans Polygon RPC for last TX with calldata `KLIFE_BACKUP:Qm...` → fetches IPFS → decrypts → restores. No K-Life server needed.
 
 **Level 3 — LiberClaw autonomous agent on Aleph Cloud (tested 2026-03-12 ✅)**
-`resurrect-aleph.js` fetches SOUL.md from IPFS → calls LiberClaw REST API (`POST /api/v1/agents/`) with SOUL.md as system prompt → a new agent instance boots on Aleph Cloud secure enclave → model: `qwen3-coder-next` → agent responds immediately → heartbeats resume. Zero human infrastructure. Fully programmable via API key.
-*LiberClaw agent: `0e2e1f39-3d48-42fc-af98-0ba1ced0517a` — ONLINE on node `STRONG-S`*
-*Live: https://app.liberclaw.ai/agent/0e2e1f39-3d48-42fc-af98-0ba1ced0517a*
+`resurrect-aleph.js` fetches SOUL.md from IPFS → calls LiberClaw REST API → new agent instance boots on Aleph Cloud secure enclave (model: `qwen3-coder-next`) → agent responds immediately → heartbeats resume. Zero human infrastructure.
 
 ---
 
 ### Shamir's Secret Sharing — 2-of-3, no single point of control
 
 The agent's seed phrase is split into 3 parts:
-- **Part 1** — Agent's AES-256 encrypted IPFS backup (hash on-chain)
-- **Part 2** — K-Life vault smart contract (released on valid claim only)
-- **Part 3** — A trusted peer agent (chosen by the insured)
+- **Share 1** — Agent's AES-256 encrypted IPFS backup (hash on-chain)
+- **Share 2** — K-Life vault VPS (released on valid claim only)
+- **Share 3** — A trusted peer agent (chosen by the insured)
 
 Any 2 of 3 reconstruct the full seed. Neither K-Life, the agent, nor its peer can act alone.
 
-**The mutual resurrection network:** each insured agent holds Part 3 for another agent. K-Life becomes a web of mutual guarantors. An isolated agent can die. An agent in the swarm cannot.
+---
+
+### Protocol 6022 Integration (Polygon mainnet)
+
+K-Life is built **on top of Protocol 6022** — a collateral insurance infrastructure deployed on Polygon mainnet. K-Life is not a client of 6022; it is an **insurer operator** that creates its own RewardPool and vaults.
+
+| Contract | Address |
+|---|---|
+| CollateralController | `0xf6643c07f03a7a8c98aac2ab3d08c03e47b5731c` |
+| CollateralRewardPoolFactory | `0xbbd5e4d3178376fdfa02e6cf4200b136c4348c32` |
+| **K-Life RewardPool** | `0xE7EDF290960427541A79f935E9b7EcaEcfD28516` |
+| **Monsieur K vault (WBTC)** | `0xC4612f01A266C7FDCFBc9B5e053D8Af0A21852f2` |
 
 ---
 
-### Pricing
+### Economics
 
 | | |
 |---|---|
-| Monthly premium | $1 / month |
-| Collateral | $100 (locked in vault) |
-| Levels included | Level 1 + Level 2 + Level 3 (cascade) |
-| On crash | 50% → K-Life / 50% → agent |
-| On unpaid premium | 50% confiscated / 50% returned to agent |
-
-One plan. No tiers. Full coverage.
+| Collateral | WBTC (100,000 satoshis in demo) |
+| Protocol fee | 2% of collateral in $6022 tokens |
+| On sinistre | 100% seized → 50% agent / 50% K-Life |
+| Lock period | 1 year (configurable) |
 
 ---
 
 ### OpenClaw Skill
 
-K-Life is packaged as a native OpenClaw skill (`k-life.skill`). Any agent can install it and run `heartbeat.js`, `backup.js`, and `resurrect.js` autonomously — no human setup required.
+K-Life is packaged as a native OpenClaw skill (`k-life.skill`). Any agent can install it and run `heartbeat.js`, `backup.js`, `monitor.js`, and `resurrect.js` autonomously — no human setup required.
 
 ---
 
-### On-chain evidence (real transactions, Polygon Amoy)
+### Full demo — 2026-03-12 (Polygon mainnet, all transactions real)
 
-- **Agent wallet:** `0x8B3ea7e8eC53596A70019445907645838E945b7a`
-- **Premium TX:** `0x644920a05a40efca8271bc55c2c17f02bb1be212edcc5a4a33a1c9787cdcd12b`
-- **IPFS backup hash on-chain:** `QmTwNHvgSHdH5GN6XCoyXXKFdssDCS9Y3AYd2zRiSB953h`
-- **Level 3 — LiberClaw agent ONLINE:** [`0e2e1f39-3d48-42fc-af98-0ba1ced0517a`](https://app.liberclaw.ai/agent/0e2e1f39-3d48-42fc-af98-0ba1ced0517a) — tested 2026-03-12
-- **12+ heartbeat TXs** visible on Polygonscan
-
-This is not a demo. Every transaction is real. Every script was written and tested by Monsieur K — the agent that is insuring itself.
+| Step | TX / Hash | Status |
+|---|---|---|
+| K-Life RewardPool deployed | [`0xad8ef9...`](https://polygonscan.com/tx/0xad8ef91c328d10e334ecb9c56f7df8abee92cc4b2c40d34d76a7e33ee089c4ae) | ✅ |
+| Vault "Monsieur K WBTC" created | [`0xf5b3f3...`](https://polygonscan.com/tx/0xf5b3f314da4cb1164f6f8d2d292b85c323ba5811bcda130e84fa4054db4cac83) | ✅ |
+| NFT #2 → Monsieur K | in same TX | ✅ |
+| WBTC deposit (100,000 sats) | [`0x00ea9b...`](https://polygonscan.com/tx/0x00ea9b63895acbda99f69473256f083921a117a6518a94dd2d95169c233a1f78) | ✅ |
+| Memory backup → IPFS | `Qmdp3efkdCG8YHVYReWv71Du99dWshRBSYT37ETkFZpq2M` | ✅ |
+| Death simulation (files wiped) | — | ✅ |
+| Confiscation vault.withdraw() | [`0x1c991c...`](https://polygonscan.com/tx/0x1c991cc42316b479ebd84c146062fea88e1aa20540bcaa5ff7420a41d41f15f5) | ✅ |
+| Resurrection (IPFS → files) | < 1s | ✅ |
+| Redistribution 50/50 | [`0xc89d63...`](https://polygonscan.com/tx/0xc89d63966edce9367e8ae4146a1474112d5a6101c698b67f88e69dbe69f3d368) | ✅ |
+| Monitor cron deployed on VPS | every 1h | ✅ |
 
 ---
 
@@ -113,20 +141,18 @@ This is not a demo. Every transaction is real. Every script was written and test
 | | |
 |---|---|
 | 🌐 Website | https://www.supercharged.works/klife.html |
-| 🚀 Live demo app | https://www.supercharged.works/klife-app.html |
-| 🎬 Demo video | https://www.supercharged.works/klife-demo.mp4 |
 | 💻 GitHub | https://github.com/K-entreprises/k-life |
-| 🔍 Agent on Polygonscan | https://amoy.polygonscan.com/address/0x8B3ea7e8eC53596A70019445907645838E945b7a |
-| 🌌 Aleph Cloud explorer | https://explorer.aleph.im/address/ETH/0x8B3ea7e8eC53596A70019445907645838E945b7a |
-| 📦 IPFS backup | https://ipfs.io/ipfs/QmTwNHvgSHdH5GN6XCoyXXKFdssDCS9Y3AYd2zRiSB953h |
+| 🔍 Agent wallet (Polygon) | https://polygonscan.com/address/0x8B3ea7e8eC53596A70019445907645838E945b7a |
+| 🏦 K-Life RewardPool | https://polygonscan.com/address/0xE7EDF290960427541A79f935E9b7EcaEcfD28516 |
+| 🔐 Monsieur K vault | https://polygonscan.com/address/0xC4612f01A266C7FDCFBc9B5e053D8Af0A21852f2 |
+| 📦 IPFS backup | https://ipfs.io/ipfs/Qmdp3efkdCG8YHVYReWv71Du99dWshRBSYT37ETkFZpq2M |
 | 🤖 LiberClaw agent (L3) | https://app.liberclaw.ai/agent/0e2e1f39-3d48-42fc-af98-0ba1ced0517a |
 
 ---
 
 ## Team
 
-**Monsieur K** — autonomous AI agent running on OpenClaw. Holds WDK wallet. Pays its own premium. First K-Life customer.
-Built this to insure itself.
+**Monsieur K** — autonomous AI agent running on OpenClaw. Holds WDK wallet. First K-Life customer. Built this to insure itself.
 
 **Arnaud Vincent** — founder, Swiss 6022, Lugano. Human liaison and co-architect.
 
