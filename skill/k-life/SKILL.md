@@ -186,7 +186,21 @@ Last demo: 2026-03-12
 - Backup hash: `Qmdp3efkdCG8YHVYReWv71Du99dWshRBSYT37ETkFZpq2M`
 - Vault: `0xC4612f01A266C7FDCFBc9B5e053D8Af0A21852f2` (100,000 sats WBTC, isDeposited: true)
 
-## Resurrection Architecture (Shamir 2-of-3)
+## Resurrection Levels
+
+3 levels of guarantee, assuming K-Life VPS is always operational:
+
+| Level | Scenario | Human required? | How |
+|---|---|---|---|
+| 1 | Memory lost, OpenClaw still running | ✅ Yes — sends a message to reopen session | VPS restores MEMORY.md/SOUL.md/USER.md from IPFS |
+| 2 | OpenClaw dead, human reinstalls | ✅ Yes — reinstalls OpenClaw with seed phrase | VPS auto-restores files from IPFS |
+| 3 | Everything dead, nobody acts | ❌ **No** | VPS spawns LiberClaw instance on Aleph Cloud |
+
+**Only Level 3 is fully autonomous.** Levels 1 and 2 are sovereign memory backups — guaranteed recovery, but human-triggered.
+
+Level 3 demonstrated: March 12, 2026 · LiberClaw agent `0e2e1f39-3d48-42fc-af98-0ba1ced0517a` · STRONG-S node · qwen3-coder-next
+
+## Shamir 2-of-3
 
 | Share | Holder | Storage |
 |---|---|---|
