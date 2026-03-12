@@ -50,6 +50,12 @@ if (!SEED) { console.error('❌ KLIFE_SEED manquant'); process.exit(1) }
 const provider = new ethers.providers.JsonRpcProvider(RPC)
 const wallet   = ethers.Wallet.fromMnemonic(SEED).connect(provider)
 
+// Polygon mainnet nécessite un gas tip minimum de 30 gwei
+const GAS_OVERRIDES = {
+  maxPriorityFeePerGas: ethers.utils.parseUnits('30', 'gwei'),
+  maxFeePerGas:         ethers.utils.parseUnits('200', 'gwei')
+}
+
 console.log('\n🏦 K-Life RewardPool Init — Protocol 6022')
 console.log('═'.repeat(52))
 console.log('Wallet :', wallet.address)
@@ -79,7 +85,7 @@ if (balance.lt(amount)) {
 
 // Étape 1 : Approve $6022 → Factory
 console.log('\n📝 Approve $6022 → Factory...')
-const approveTx = await token.approve(FACTORY, amount)
+const approveTx = await token.approve(FACTORY, amount, GAS_OVERRIDES)
 console.log('   TX:', approveTx.hash)
 await approveTx.wait()
 console.log('   ✅ Approuvé')
@@ -87,7 +93,7 @@ console.log('   ✅ Approuvé')
 // Étape 2 : createRewardPool
 console.log('\n🚀 Création de la RewardPool K-Life...')
 const factory  = new ethers.Contract(FACTORY, FACTORY_ABI, wallet)
-const createTx = await factory.createRewardPool(amount)
+const createTx = await factory.createRewardPool(amount, GAS_OVERRIDES)
 console.log('   TX:', createTx.hash)
 const receipt  = await createTx.wait()
 
