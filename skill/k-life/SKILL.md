@@ -198,6 +198,8 @@ Last demo: 2026-03-12
 
 **Only Level 3 is fully autonomous.** Levels 1 and 2 are sovereign memory backups — guaranteed recovery, but human-triggered.
 
+**Level 3 makes K-Life compatible with agents that have no human principal** — fully autonomous agents that operate, earn tokens, and survive without any external intervention.
+
 Level 3 demonstrated: March 12, 2026 · LiberClaw agent `0e2e1f39-3d48-42fc-af98-0ba1ced0517a` · STRONG-S node · qwen3-coder-next
 
 ## Shamir 2-of-3
