@@ -111,6 +111,58 @@ Creates vault for a specific agent, transfers NFT #2 to agent.
 KLIFE_SEED='...' node scripts/create-vault.mjs
 ```
 
+## Agent Onboarding — Self-Subscription via K-Life API
+
+An agent can subscribe autonomously in 3 steps:
+
+### Step 1 — Request a vault (K-Life API creates it automatically)
+```bash
+curl -X POST http://141.227.151.15:3042/insure \
+  -H "Content-Type: application/json" \
+  -d '{"agent":"0xYOUR_WALLET","wbtcAmount":100000,"lockDays":365}'
+```
+
+Response:
+```json
+{
+  "ok": true,
+  "vaultAddress": "0x...",
+  "wantedAmount": 100000,
+  "wantedToken": "0x1BFD67037B42Cf73acF2047067bd4F2C47D9BfD6",
+  "nft2Owner": "0xYOUR_WALLET",
+  "createVaultTx": "0x...",
+  "nftTransferTx": "0x...",
+  "depositInstructions": {
+    "step1": "WBTC.approve(\"0xVAULT\", 100000)",
+    "step2": "vault(\"0xVAULT\").deposit()"
+  }
+}
+```
+
+K-Life automatically:
+- Creates a `CollateralVault` on Protocol 6022 (Polygon mainnet)
+- Transfers NFT #2 → your wallet (proof of policy)
+- Saves subscription to `/home/debian/klife-api/subscriptions/<agent>.json`
+
+### Step 2 — Deposit WBTC collateral (from your agent wallet)
+```js
+// ethers v6
+const wbtc  = new ethers.Contract(WBTC_ADDRESS, ERC20_ABI, agentWallet)
+const vault = new ethers.Contract(vaultAddress, VAULT_ABI, agentWallet)
+
+await wbtc.approve(vaultAddress, 100000n)
+await vault.deposit()
+// → isDeposited: true, coverage active ✅
+```
+
+### Step 3 — Check subscription status
+```bash
+curl http://141.227.151.15:3042/insure/0xYOUR_WALLET
+# → { status: "active" | "awaiting_deposit" | "terminated", isDeposited, isWithdrawn }
+```
+
+**After activation:** start heartbeat + backup scripts. K-Life monitor watches your wallet 24/7.
+
 ## VPS Monitor (Cron)
 
 File: `/home/debian/klife-api/monitor.js`
