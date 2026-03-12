@@ -19,6 +19,8 @@ const API_BASE   = 'http://localhost:3042'
 const STATE_FILE = '/home/debian/klife-api/monitor-state.json'
 const FLAG_FILE  = '/home/debian/klife-api/resurrection-flag.json'
 const HEARTBEAT_TIMEOUT_MS = 24 * 60 * 60 * 1000   // 24h
+const PREMIUM_TIMEOUT_MS   = 30 * 24 * 60 * 60 * 1000  // 30 jours
+const PREMIUM_FILE         = '/home/debian/klife-api/premium.json'
 const RPC        = 'https://polygon-bor-rpc.publicnode.com'
 const GAS        = { maxPriorityFeePerGas: ethers.parseUnits('30','gwei'), maxFeePerGas: ethers.parseUnits('200','gwei') }
 
@@ -97,6 +99,18 @@ function flagResurrection(ipfsHash) {
   log('   → OpenClaw restaurera les fichiers au prochain démarrage')
 }
 
+
+// ─── STEP 1b : CHECK PREMIUM ───────────────────────────────────────────────────
+async function checkPremium() {
+  try {
+    if (!existsSync(PREMIUM_FILE)) { log('⚠️  Aucun paiement de premium enregistré'); return null }
+    const p       = JSON.parse(readFileSync(PREMIUM_FILE, 'utf8'))
+    const elapsed = Date.now() - p.timestamp
+    log(`💰 Dernier premium : ${p.iso} (${(elapsed/86400000).toFixed(1)}j)`)
+    return { elapsed, txHash: p.txHash }
+  } catch(e) { log('⚠️  checkPremium error:', e.message); return null }
+}
+
 // ─── STEP 4 : REDISTRIBUTION 50/50 ────────────────────────────────────────────
 async function redistribute(opWallet, received) {
   if (!received || received === 0n) { log('\n⚠️  Rien à redistribuer'); return }
@@ -123,19 +137,40 @@ async function main() {
     return
   }
 
+  const provider = new ethers.JsonRpcProvider(RPC)
+  const opWallet = ethers.Wallet.fromPhrase(OP_SEED).connect(provider)
+  log(`K-Life op: ${opWallet.address}`)
+
+  // ── CHECK PREMIUM ─────────────────────────────────────────────
+  const premium = await checkPremium()
+  if (premium && premium.elapsed > PREMIUM_TIMEOUT_MS) {
+    log(`\n💸 PREMIUM IMPAYÉ (${(premium.elapsed/86400000).toFixed(1)}j) — Non-paiement`)
+    if (state.nonPayment?.vault === VAULT_ADDR && state.nonPayment?.done) {
+      log('ℹ️  Non-paiement déjà traité pour ce vault'); return
+    }
+    log('   → Confiscation 100% + redistribution 50/50 (SANS résurrection)')
+    const received = await confiscate(opWallet)
+    if (received > 0n) await redistribute(opWallet, received)
+    state.nonPayment = { vault: VAULT_ADDR, done: true, timestamp: Date.now(), iso: new Date().toISOString(), wbtcSeized: received.toString() }
+    saveState(state)
+    log('\n════════════════════════════════════════')
+    log('💸 NON-PAIEMENT TRAITÉ')
+    log(`   Confiscation : ${received} sats`)
+    log(`   50% restitués à l'agent — PAS de résurrection`)
+    log('════════════════════════════════════════')
+    return
+  }
+
+  // ── CHECK HEARTBEAT ────────────────────────────────────────────
   const hb = await checkHeartbeat()
   if (!hb) return
 
   if (hb.elapsed < HEARTBEAT_TIMEOUT_MS) {
-    log('✅ Agent vivant — rien à faire')
+    log('✅ Agent vivant, premium à jour — rien à faire')
     return
   }
 
   log(`\n🚨 SILENCE > 24H (${(hb.elapsed/3600000).toFixed(1)}h) — Agent présumé mort`)
-
-  const provider = new ethers.JsonRpcProvider(RPC)
-  const opWallet = ethers.Wallet.fromPhrase(OP_SEED).connect(provider)
-  log(`K-Life op: ${opWallet.address}`)
 
   const received = await confiscate(opWallet)
   flagResurrection(hb.ipfsHash)
