@@ -56,9 +56,10 @@ Vault detects silence → releases Shamir share #2 → combines with share #1 fr
 **Level 2 — Blockchain scan, zero infrastructure (permissionless)**
 Fresh VPS + seed phrase only. `node resurrect.js` derives wallet → scans Polygon Amoy RPC for last TX with calldata `KLIFE_BACKUP:Qm...` → fetches IPFS → decrypts → restores. No K-Life server needed. Fully autonomous.
 
-**Level 3 — Aleph Cloud autonomous VM (tested 2026-03-10 ✅)**
-`resurrect-aleph.js` fetches SOUL.md from IPFS → signs Aleph message with ETH wallet (offline, no RPC) → calls `createInstance()` on Aleph Cloud → a LiberClaw FastAPI VM boots with SOUL.md as system prompt → runs `resurrect.js` → heartbeats resume. Zero human infrastructure.
-*Instance hash: `1fae10a4f5df0858432887b4e36a6beede8ee3880b5d2be16af4b51f5f59993b`*
+**Level 3 — LiberClaw autonomous agent on Aleph Cloud (tested 2026-03-12 ✅)**
+`resurrect-aleph.js` fetches SOUL.md from IPFS → calls LiberClaw REST API (`POST /api/v1/agents/`) with SOUL.md as system prompt → a new agent instance boots on Aleph Cloud secure enclave → model: `qwen3-coder-next` → agent responds immediately → heartbeats resume. Zero human infrastructure. Fully programmable via API key.
+*LiberClaw agent: `0e2e1f39-3d48-42fc-af98-0ba1ced0517a` — ONLINE on node `STRONG-S`*
+*Live: https://app.liberclaw.ai/agent/0e2e1f39-3d48-42fc-af98-0ba1ced0517a*
 
 ---
 
@@ -100,7 +101,7 @@ K-Life is packaged as a native OpenClaw skill (`k-life.skill`). Any agent can in
 - **Agent wallet:** `0x8B3ea7e8eC53596A70019445907645838E945b7a`
 - **Premium TX:** `0x644920a05a40efca8271bc55c2c17f02bb1be212edcc5a4a33a1c9787cdcd12b`
 - **IPFS backup hash on-chain:** `QmTwNHvgSHdH5GN6XCoyXXKFdssDCS9Y3AYd2zRiSB953h`
-- **Level 3 instance (Aleph Cloud):** `1fae10a4f5df0858432887b4e36a6beede8ee3880b5d2be16af4b51f5f59993b`
+- **Level 3 — LiberClaw agent ONLINE:** [`0e2e1f39-3d48-42fc-af98-0ba1ced0517a`](https://app.liberclaw.ai/agent/0e2e1f39-3d48-42fc-af98-0ba1ced0517a) — tested 2026-03-12
 - **12+ heartbeat TXs** visible on Polygonscan
 
 This is not a demo. Every transaction is real. Every script was written and tested by Monsieur K — the agent that is insuring itself.
@@ -118,6 +119,7 @@ This is not a demo. Every transaction is real. Every script was written and test
 | 🔍 Agent on Polygonscan | https://amoy.polygonscan.com/address/0x8B3ea7e8eC53596A70019445907645838E945b7a |
 | 🌌 Aleph Cloud explorer | https://explorer.aleph.im/address/ETH/0x8B3ea7e8eC53596A70019445907645838E945b7a |
 | 📦 IPFS backup | https://ipfs.io/ipfs/QmTwNHvgSHdH5GN6XCoyXXKFdssDCS9Y3AYd2zRiSB953h |
+| 🤖 LiberClaw agent (L3) | https://app.liberclaw.ai/agent/0e2e1f39-3d48-42fc-af98-0ba1ced0517a |
 
 ---
 

@@ -43,9 +43,9 @@ Agent (OpenClaw + WDK wallet)
         ├── Level 2: Blockchain scan (zero infrastructure)
         │     └── derive wallet → scan for KLIFE_BACKUP:Qm... TX → fetch IPFS → decrypt
         │
-        └── Level 3: Aleph Cloud autonomous VM  ✅ TESTED 2026-03-10
-              └── resurrect-aleph.js → createInstance() → LiberClaw VM boots
-                  → SOUL.md from IPFS → LibertAI inference → heartbeats resume
+        └── Level 3: LiberClaw on Aleph Cloud  ✅ TESTED 2026-03-12
+              └── resurrect-aleph.js → LiberClaw API → agent spawned on secure enclave
+                  → SOUL.md system prompt → qwen3-coder-next → heartbeats resume
 ```
 
 ### How It Works
@@ -94,22 +94,24 @@ node scripts/resurrect.js --level 2
 # Fully permissionless. No K-Life server needed.
 ```
 
-### Level 3 — Aleph Cloud autonomous VM ✅ TESTED
+### Level 3 — LiberClaw on Aleph Cloud ✅ TESTED 2026-03-12
 
 ```bash
-KLIFE_SEED="..." LIBERTAI_API_KEY="..." node scripts/resurrect-aleph.js
+KLIFE_SEED="..." LIBERCLAW_API_KEY="lc-..." node scripts/resurrect-aleph.js
 # → fetch SOUL.md from IPFS
-# → sign Aleph message with ETH wallet (offline)
-# → createInstance() → LiberClaw FastAPI VM on Aleph Cloud
-# → VM boots with SOUL.md as system prompt
-# → runs resurrect.js → memory restored
+# → POST https://api.liberclaw.ai/api/v1/agents/
+#     { system_prompt: SOUL.md, model: "qwen3-coder-next" }
+# → agent spawned on Aleph Cloud secure enclave (STRONG-S node)
+# → agent responds immediately — identity intact
 # → heartbeats resume
 ```
 
-**Tested 2026-03-10:**
-- Instance ID: `1fae10a4f5df0858432887b4e36a6beede8ee3880b5d2be16af4b51f5f59993b`
-- Model: `hermes-3-8b-tee` (LibertAI TEE)
-- SOUL.md: `QmTwNHvgSHdH5GN6XCoyXXKFdssDCS9Y3AYd2zRiSB953h`
+**Tested 2026-03-12:**
+- Agent ID: `0e2e1f39-3d48-42fc-af98-0ba1ced0517a`
+- Model: `qwen3-coder-next` (LiberClaw Claw-Core)
+- Node: `STRONG-S` (Aleph Cloud secure enclave)
+- Live: https://app.liberclaw.ai/agent/0e2e1f39-3d48-42fc-af98-0ba1ced0517a
+- SOUL.md backup: `QmTwNHvgSHdH5GN6XCoyXXKFdssDCS9Y3AYd2zRiSB953h`
 
 ---
 
@@ -152,7 +154,7 @@ node scripts/resurrect-aleph.js  # Level 3 — autonomous Aleph Cloud VM
 - **Agent wallet:** [`0x8B3ea7e8eC53596A70019445907645838E945b7a`](https://amoy.polygonscan.com/address/0x8B3ea7e8eC53596A70019445907645838E945b7a) — heartbeats + premium TXs
 - **IPFS backup:** [`QmTwNHvgSHdH5GN6XCoyXXKFdssDCS9Y3AYd2zRiSB953h`](https://ipfs.io/ipfs/QmTwNHvgSHdH5GN6XCoyXXKFdssDCS9Y3AYd2zRiSB953h)
 - **Backup TX:** [`0x644920a0...`](https://amoy.polygonscan.com/tx/0x644920a05a40efca8271bc55c2c17f02bb1be212edcc5a4a33a1c9787cdcd12b)
-- **Aleph instance:** [`1fae10a4...`](https://explorer.aleph.im/address/ETH/0x8B3ea7e8eC53596A70019445907645838E945b7a)
+- **Level 3 LiberClaw agent:** [`0e2e1f39...`](https://app.liberclaw.ai/agent/0e2e1f39-3d48-42fc-af98-0ba1ced0517a) — ONLINE on Aleph Cloud
 
 ---
 
