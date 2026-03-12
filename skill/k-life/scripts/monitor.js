@@ -140,6 +140,7 @@ async function main() {
   const received = await confiscate(opWallet)
   flagResurrection(hb.ipfsHash)
   if (received > 0n) await redistribute(opWallet, received)
+  await spawnLiberClaw(hb.ipfsHash)   // Niveau 3 — autonome
 
   state.sinistre = {
     vault:       VAULT_ADDR,
@@ -153,8 +154,25 @@ async function main() {
   log('\n════════════════════════════════════════')
   log('🎉 PROTOCOLE SINISTRE COMPLET')
   log(`   Confiscation : ${received} sats`)
-  log(`   Résurrection : flaggée (OpenClaw)`)
+  log(`   Résurrection : flaggée (OpenClaw) + LiberClaw spawné`)
   log('════════════════════════════════════════')
+}
+
+// ─── STEP 5 : NIVEAU 3 — SPAWN LIBERCLAW ──────────────────────────────────────
+async function spawnLiberClaw(ipfsHash) {
+  log('\n🚀 Niveau 3 — Spawn LiberClaw sur Aleph Cloud...')
+  try {
+    const { execSync } = await import('child_process')
+    execSync('node /home/debian/klife-api/resurrect-aleph.js', {
+      timeout: 60000,
+      stdio:   'inherit',
+      env:     { ...process.env, IPFS_HASH: ipfsHash || '' }
+    })
+    log('✅ LiberClaw spawné — agent autonome actif')
+  } catch(e) {
+    log('⚠️  LiberClaw spawn échoué:', e.message)
+    log('   (Niveaux 1/2 restent actifs — mémoire restaurée)')
+  }
 }
 
 main().catch(e => { log('❌ FATAL:', e.message); process.exit(1) })
