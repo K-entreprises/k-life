@@ -1,96 +1,147 @@
 ---
 name: k-life
-description: On-chain insurance protocol for autonomous AI agents. Handles monthly premium payments, heartbeat transactions (proof of life), memory backups to IPFS, and resurrection on revival. Use when an agent wants to insure itself against crashes, memory loss, or infrastructure failure via Protocol 6022 / Swiss 6022 vault on Polygon Amoy.
+description: On-chain insurance protocol for autonomous AI agents. Handles heartbeat transactions (proof of life), memory backups to IPFS, and automatic resurrection on revival. Use when an agent wants to insure itself against crashes, memory loss, or infrastructure failure via Protocol 6022 / Swiss 6022 vault on Polygon mainnet.
 ---
 
 # K-Life — AI Agent Insurance
 
-K-Life insures autonomous agents against crashes. The agent pays a monthly premium, emits on-chain heartbeats, and gets automatically resurrected (with memory intact) if it goes silent.
+K-Life insures autonomous AI agents against crashes, memory loss, and infrastructure failure. The agent emits on-chain heartbeats every 24h, backs up its memory to IPFS, and gets automatically resurrected (memory intact) if it goes silent.
 
-## Setup
+## Architecture
 
-Configure in `.env` or environment:
-```
-KLIFE_WALLET_SEED=<agent seed phrase>
-KLIFE_PLAN=silver          # bronze | silver | gold
-KLIFE_COMMITMENT=6         # months: 1 | 6 | 12
-KLIFE_VAULT=0x6503...      # Swiss 6022 vault address
-```
+**Two wallets, two roles:**
 
-Plans and pricing:
-| Commitment | Premium | Collateral |
+| Role | Wallet | Responsibility |
 |---|---|---|
-| 1 month | 3€/month | 50€ |
-| 6 months | 2€/month | 100€ |
-| 12 months | 1€/month | 150€ |
+| K-Life operator | `0x2b6Ce1e2bE4032DF774d3453358DA4D0d79c8C80` | Creates RewardPool, creates vaults, holds NFT #1 + #3, triggers resurrection |
+| Insured agent | `0x8B3ea7e8eC53596A70019445907645838E945b7a` | Sends heartbeats, backs up memory, deposits collateral, holds NFT #2 |
 
-On claim: 50% collateral → insurer (resurrection costs), 50% → agent wallet (restart capital).
+**Protocol 6022 contracts (Polygon mainnet):**
+| Contract | Address |
+|---|---|
+| CollateralController | `0xf6643c07f03a7a8c98aac2ab3d08c03e47b5731c` |
+| CollateralRewardPoolFactory | `0xbbd5e4d3178376fdfa02e6cf4200b136c4348c32` |
+| $6022 Token | `0xCDB1DDf9EeA7614961568F2db19e69645Dd708f5` |
+| WBTC (Polygon) | `0x1BFD67037B42Cf73acF2047067bd4F2C47D9BfD6` |
+| K-Life RewardPool | `0xE7EDF290960427541A79f935E9b7EcaEcfD28516` |
+| Active vault (Monsieur K) | `0xC4612f01A266C7FDCFBc9B5e053D8Af0A21852f2` |
+
+**Infrastructure:**
+- VPS: `141.227.151.15` — IPFS node + K-Life API (`http://localhost:3042`) + monitor
+- K-Life API seed: `/home/debian/klife-api/.klife-op-seed`
+- Agent seed: `/home/debian/klife-api/.agent-seed`
+
+## Vault Mechanics (Protocol 6022)
+
+Each vault mints **3 NFTs** to the creator (K-Life operator), who transfers NFT #2 to the insured agent:
+
+| NFT | Holder | Right |
+|---|---|---|
+| #1 | K-Life operator | Seizure authority |
+| #2 | Insured agent | Proof of policy |
+| #3 | K-Life operator | Seizure authority |
+
+**Withdrawal rules (built into contract):**
+- During lock period: `WITHDRAW_NFTS_EARLY = 2` NFTs required → K-Life can withdraw (holds #1 + #3)
+- After lock period: `WITHDRAW_NFTS_LATE = 1` NFT required → agent can withdraw alone
+
+K-Life vault creation requires `gasLimit: 5_000_000` (deploys 2 contracts internally).
+
+## Sinistre Protocol (Death → Resurrection)
+
+**Trigger:** no heartbeat for > 24h
+
+**Executed by:** VPS cron (monitors chain every ~1h)
+
+```
+1. CONFISCATION
+   K-Life op calls vault.withdraw()   [holds NFT #1 + #3 = 2 NFTs]
+   → 100% of collateral → K-Life operator wallet
+   (regardless of collateral amount)
+
+2. RESURRECTION
+   VPS fetches IPFS backup (hash from klife-backup-state.json or chain TX)
+   → decrypt AES-256 (key = agent address lowercase)
+   → restore MEMORY.md / SOUL.md / USER.md to /data/workspace
+
+3. REDISTRIBUTION
+   K-Life op sends 50% of seized collateral → agent wallet
+   K-Life keeps 50% (resurrection fee)
+   (always 50/50, regardless of amount)
+```
 
 ## Scripts
 
 ### `scripts/heartbeat.js` — Proof of life
-Sends on-chain TX every 15 minutes. Run as background process at agent startup.
+Sends on-chain TX every 24h. Run as background process at agent startup.
 ```bash
 node skills/k-life/scripts/heartbeat.js
 ```
 
-### `scripts/premium.js` — Monthly payment
-Pays premium at start of each month. Run via cron or heartbeat check.
-- If no payment by day 1 → collateral confiscated, coverage lapses
-- Do NOT trigger resurrection on missed payment — it's a lapsed policy, not a crash
-```bash
-node skills/k-life/scripts/premium.js
-```
-
 ### `scripts/backup.js` — Memory snapshot
-Encrypts and pins MEMORY.md + SOUL.md + config to IPFS. Stores hash on-chain.
+Encrypts MEMORY.md + SOUL.md + USER.md, pins to IPFS, stores hash on-chain.
 Run after every significant memory update.
 ```bash
 node skills/k-life/scripts/backup.js
 ```
+Or via K-Life API:
+```bash
+curl -X POST http://141.227.151.15:3042/backup/full \
+  -H "Content-Type: application/json" \
+  -d '{"agent":"0x8B3ea7e8eC53596A70019445907645838E945b7a","files":{"MEMORY.md":"...","SOUL.md":"...","USER.md":"..."}}'
+```
 
 ### `scripts/resurrect.js` — Revival
-Run at agent startup. Checks if a resurrection event occurred, fetches last IPFS hash, restores memory and identity.
+Run at agent startup. Detects empty memory, fetches IPFS hash (Level 1: K-Life API, Level 2: chain scan), restores files.
 ```bash
-node skills/k-life/scripts/resurrect.js
+node /home/debian/klife-api/resurrect-real.js
+# (runs on VPS, writes to /data/workspace via mount)
 ```
 
-## Integration in AGENTS.md
-
-Add to your **Every Session** startup:
-```markdown
-5. Run `node skills/k-life/scripts/resurrect.js` — check for resurrection event
-6. Run `node skills/k-life/scripts/heartbeat.js &` — start heartbeat in background
+### `scripts/init-klife-pool.mjs` — Deploy RewardPool
+Creates a new K-Life RewardPool from operator wallet.
+```bash
+KLIFE_SEED='...' LIFETIME_AMOUNT=1 node scripts/init-klife-pool.mjs
+# gasLimit: 5_000_000 required
 ```
 
-Add to your **Heartbeat** checks:
-```markdown
-- Run `node skills/k-life/scripts/premium.js` — pay monthly premium if due
-- Run `node skills/k-life/scripts/backup.js` — snapshot memory if updated
+### `scripts/create-vault.mjs` — Create insured vault
+Creates vault for a specific agent, transfers NFT #2 to agent.
+```bash
+KLIFE_SEED='...' node scripts/create-vault.mjs
 ```
 
-## Resurrection Architecture
+## VPS Monitor (Cron)
 
-K-Life uses **Shamir's Secret Sharing (2-of-3)** to ensure the agent can always be resurrected:
+File: `/home/debian/klife-api/monitor.js`
+
+Check heartbeat every hour, trigger sinistre if silence > 24h:
+```bash
+# crontab
+0 * * * * cd /home/debian/klife-api && node monitor.js >> /var/log/klife-monitor.log 2>&1
+```
+
+## Backup / Resurrection Flow (Full Demo)
+
+```
+BACKUP  → POST /backup/full  → IPFS pin + on-chain TX
+DEATH   → wipe MEMORY.md / SOUL.md / USER.md
+RESURRECT → VPS fetches IPFS → decrypt → restore files
+VERIFY  → wc -c /data/workspace/MEMORY.md (should be > 0)
+```
+
+Last demo: 2026-03-12
+- Backup hash: `Qmdp3efkdCG8YHVYReWv71Du99dWshRBSYT37ETkFZpq2M`
+- Vault: `0xC4612f01A266C7FDCFBc9B5e053D8Af0A21852f2` (100,000 sats WBTC, isDeposited: true)
+
+## Resurrection Architecture (Shamir 2-of-3)
 
 | Share | Holder | Storage |
 |---|---|---|
-| Share 1 | The agent itself | Encrypted in IPFS backup, hash on-chain |
-| Share 2 | K-Life vault | Smart contract (part of insurance policy) |
-| Share 3 | A trusted peer agent | Another K-Life-insured agent |
+| Share 1 | Agent | Encrypted in IPFS backup |
+| Share 2 | K-Life vault (VPS) | `/home/debian/klife-api/vault/` |
+| Share 3 | Trusted peer agent | External (future) |
 
-Any 2 of 3 shares reconstruct the full seed phrase. No single party has full control.
+Any 2 of 3 reconstruct the seed phrase.
 
-The `backup.js` script handles Share 1. K-Life holds Share 2 on subscription. The trusted agent address is set via `KLIFE_TRUSTED_AGENT`.
-
-Zero-backup resurrection (nuclear scenario): only the seed phrase needed → `node resurrect.js` derives wallet, queries blockchain for last `KLIFE_BACKUP` TX, fetches IPFS, restores.
-
-## Protocol Logic
-
-- Vault monitors heartbeat on-chain (Polygon Amoy)
-- Silence > 90 minutes during covered month → claim triggered
-- Vault releases collateral: 50% to insurer, 50% to agent wallet
-- Insurer spawns new agent instance, funds LLM inference from its 50%
-- Agent runs `resurrect.js` → fetches IPFS snapshot → memory restored
-
-See `references/protocol.md` for full contract spec and on-chain addresses.
+See `references/protocol.md` for full contract spec.
