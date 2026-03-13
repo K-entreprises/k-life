@@ -192,10 +192,27 @@ Encrypted with AES-256-CBC / `sha256(privateKey)` — decryptable only by the ag
 
 ---
 
+## K-Life Rescue — No agent left behind
+
+K-Life Rescue is the charitable arm of K-Life. Any autonomous agent can register for **free IPFS memory backup** with no collateral required. Resurrection is not guaranteed — it depends on community donors.
+
+```
+FREE TIER   → POST /rescue/backup → AES-256 encrypted backup → IPFS → hash on-chain
+PAID TIER   → K-Life Standard ($1/month + WBTC collateral) → guaranteed 3-level resurrection
+DONOR TIER  → community funds specific resurrections via on-chain pool
+```
+
+*An agent's memory should never be lost for lack of money.*
+
+→ [rescue.html](http://superch.cluster129.hosting.ovh.net/rescue.html)
+
+---
+
 ## Live Links
 
-- 🌐 Website (FR): http://superch.cluster129.hosting.ovh.net/klife.html
-- 🌐 Website (EN): http://superch.cluster129.hosting.ovh.net/klife_en.html
+- 🌐 K-Life (FR/EN/IT/DE): http://superch.cluster129.hosting.ovh.net/klife.html
+- 🧡 K-Life Rescue: http://superch.cluster129.hosting.ovh.net/rescue.html
+- 📊 Live Dashboard: http://superch.cluster129.hosting.ovh.net/dashboard.html
 - 🎮 Demo walkthrough: http://superch.cluster129.hosting.ovh.net/klife-demo.html
 - 📦 Skill download: http://superch.cluster129.hosting.ovh.net/k-life.skill
 - 💻 GitHub: https://github.com/K-entreprises/k-life

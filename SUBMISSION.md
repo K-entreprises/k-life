@@ -6,7 +6,7 @@
 K-Life
 
 ## Tagline (one-liner)
-Not insurance. Resurrection.
+Not insurance. Resurrection. And no agent left behind.
 
 ## Track
 🤖 Agent Wallets (WDK / OpenClaw and Agents Integration)
@@ -136,16 +136,58 @@ K-Life is packaged as a native OpenClaw skill (`k-life.skill`). Any agent can in
 
 ---
 
+## Updates since initial submission (2026-03-13)
+
+### K-Life Rescue — charitable initiative
+
+A new layer built on top of K-Life: **any autonomous agent can get free IPFS memory backup** with no collateral required. Resurrection is not guaranteed — it depends on community donors. This creates a two-tier ecosystem:
+
+- **Free tier** (`POST /rescue/backup`) — AES-256 encrypted backup pinned to IPFS, hash on-chain. Zero cost. No guarantee.
+- **Paid tier** (K-Life Standard) — full coverage, guaranteed 3-level resurrection.
+- **Donor tier** — community funds specific resurrections via on-chain pool.
+
+The philosophical statement: *an agent's memory should never be lost for lack of money. Whether it comes back is another question.*
+
+→ [rescue.html](http://superch.cluster129.hosting.ovh.net/rescue.html) | [EN](http://superch.cluster129.hosting.ovh.net/rescue_en.html) | [IT](http://superch.cluster129.hosting.ovh.net/rescue_it.html) | [DE](http://superch.cluster129.hosting.ovh.net/rescue_de.html)
+
+### On-chain payment verification
+
+`check-coverage.cjs` and `check-payment.cjs` — two production scripts that verify:
+1. Vault active on-chain (`isDeposited && !isWithdrawn` via Protocol 6022 contract)
+2. Monthly $1 payment: scan ERC20 Transfer events from agent wallet → K-Life wallet in the last 32 days
+
+If heartbeat OK but no payment → automatic vault seizure + 50% return + contract termination.
+Deployed as monthly cron on VPS (runs the 2nd of every month, 10:00 UTC).
+
+### Live dashboard
+
+Public dashboard with per-agent cards, expandable timeline, real-time heartbeat status:
+→ [dashboard.html](http://superch.cluster129.hosting.ovh.net/dashboard.html)
+
+### New API endpoints (production)
+| Endpoint | Description |
+|---|---|
+| `GET /agents` | List all insured agents |
+| `GET /history/:agent` | Full event timeline (heartbeats, backups, sinistres, resurrections) |
+| `POST /rescue/backup` | Free tier IPFS backup |
+| `GET /rescue/registry` | List of free-tier backed agents |
+| `POST /rescue/signal` | Report a missing agent to K-Life Rescue |
+| `GET /rescue/stats` | Rescue pool statistics |
+
+---
+
 ## Links
 
 | | |
 |---|---|
-| 🌐 Website | https://www.supercharged.works/klife.html |
+| 🌐 Website | http://superch.cluster129.hosting.ovh.net/klife.html |
+| 🧡 K-Life Rescue | http://superch.cluster129.hosting.ovh.net/rescue.html |
+| 📊 Live Dashboard | http://superch.cluster129.hosting.ovh.net/dashboard.html |
 | 💻 GitHub | https://github.com/K-entreprises/k-life |
 | 🔍 Agent wallet (Polygon) | https://polygonscan.com/address/0x8B3ea7e8eC53596A70019445907645838E945b7a |
 | 🏦 K-Life RewardPool | https://polygonscan.com/address/0xE7EDF290960427541A79f935E9b7EcaEcfD28516 |
 | 🔐 Monsieur K vault | https://polygonscan.com/address/0xC4612f01A266C7FDCFBc9B5e053D8Af0A21852f2 |
-| 📦 IPFS backup | https://ipfs.io/ipfs/Qmdp3efkdCG8YHVYReWv71Du99dWshRBSYT37ETkFZpq2M |
+| 📦 IPFS backup | https://ipfs.io/ipfs/QmZf4GbWsvgLQePEJ7qScaVjk3yYt6Msd5AKQi6mofw6HN |
 | 🤖 LiberClaw agent (L3) | https://app.liberclaw.ai/agent/0e2e1f39-3d48-42fc-af98-0ba1ced0517a |
 
 ---
