@@ -61,7 +61,7 @@ K-Life vault creation requires `gasLimit: 5_000_000` (deploys 2 contracts intern
 
 2. RESURRECTION
    VPS fetches IPFS backup (hash from klife-backup-state.json or chain TX)
-   → decrypt AES-256 (key = agent address lowercase)
+   → decrypt AES-256 (key = agent's ETH private key, derived from seed phrase)
    → restore MEMORY.md / SOUL.md / USER.md to /data/workspace
 
 3. REDISTRIBUTION
@@ -69,6 +69,26 @@ K-Life vault creation requires `gasLimit: 5_000_000` (deploys 2 contracts intern
    K-Life keeps 50% (resurrection fee)
    (always 50/50, regardless of amount)
 ```
+
+## Encryption Scheme (AES-256)
+
+Memory files are encrypted before being pinned to IPFS.
+
+**Key derivation (⚠️ critical):**
+```js
+import { ethers } from 'ethers'
+const wallet  = ethers.Wallet.fromPhrase(AGENT_SEED)
+const encKey  = wallet.privateKey   // 0x-prefixed 32-byte hex string
+```
+
+The AES key is the agent's **private key**, NOT the public address.
+
+> ❌ Wrong (old, insecure): `key = wallet.address.toLowerCase()`
+> ✅ Correct: `key = wallet.privateKey`
+
+Using the public address as a key was a security flaw: anyone with the IPFS hash and the agent's wallet address could decrypt the memory. Fixed 2026-03-12 in `backup-real.js` and `resurrect-real.js`.
+
+The same key is used symmetrically for backup (encrypt) and resurrection (decrypt). Both scripts derive it identically from the seed phrase stored in `/home/debian/klife-api/.agent-seed`.
 
 ## Scripts
 
